@@ -28,28 +28,32 @@ public class AuthService {
     }
 
     public String getAccessToken() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("grant_type", "client_credentials");
-        body.add("client_id", clientId);
-        body.add("client_secret", clientSecret);
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("grant_type", "client_credentials");
+            body.add("client_id", clientId);
+            body.add("client_secret", clientSecret);
 
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
+            HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(body, headers);
 
-        ResponseEntity<AuthResponse> response = restTemplate.exchange(
-                authUrl,
-                HttpMethod.POST,
-                entity,
-                AuthResponse.class
-        );
+            ResponseEntity<AuthResponse> response = restTemplate.exchange(
+                    authUrl,
+                    HttpMethod.POST,
+                    entity,
+                    AuthResponse.class
+            );
 
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            return response.getBody().getAccessToken();
-        } else {
-            throw new RuntimeException("Falha na autenticação: " + response.getStatusCode());
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                return response.getBody().getAccessToken();
+            } else {
+                throw new RuntimeException("Falha na autenticação: " + response.getStatusCode());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao obter token de acesso: " + e.getMessage(), e);
         }
     }
 
